@@ -19,5 +19,12 @@ using PriceConvertor for uint256;
         amount[msg.sender] += msg.value;
         
     }
-    // function withdraw() public{}   
+    function withdraw() public{
+        //for loop
+        //[1,2,3,4]
+        for(uint256 i=0;i<funders.length;i++){
+            address funder = funders[i];
+            amount[funder] = 0;
+        }
+    }   
 }
