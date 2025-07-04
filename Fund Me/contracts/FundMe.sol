@@ -26,5 +26,14 @@ using PriceConvertor for uint256;
             address funder = funders[i];
             amount[funder] = 0;
         }
+        funders = new address[](0);
+
+        //transer 2300 gas gives error
+        payable(msg.sender).transfer(address(this).balance);
+        //send 2300 gas returns bool
+        require(payable(msg.sender).send(address(this).balance),"Send Failed");
+        //call
+        (bool callSuccess,)=payable(msg.sender).call{value: address(this).balance}("");
+        require(callSuccess,"Call Failed");
     }   
 }
