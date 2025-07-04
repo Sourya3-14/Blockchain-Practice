@@ -8,9 +8,14 @@ import {PriceConvertor} from "./PriceConvertor.sol";
 contract FundMe{
 using PriceConvertor for uint256;
 
-    uint256 minimumUSD = 5;
+    uint256 minimumUSD = 5e18;
     address[] public funders;
     mapping (address => uint256) public amount;
+    address public owner;
+    constructor(){
+        minimumUSD = 1e18;
+        owner = msg.sender;
+    }
 
     function fund() public payable{
         require(msg.value.getConversion() >minimumUSD,"No minimum amount sent");
@@ -19,7 +24,7 @@ using PriceConvertor for uint256;
         amount[msg.sender] += msg.value;
         
     }
-    function withdraw() public{
+    function withdraw() public onlyOwner{
         //for loop
         //[1,2,3,4]
         for(uint256 i=0;i<funders.length;i++){
@@ -36,4 +41,8 @@ using PriceConvertor for uint256;
         (bool callSuccess,)=payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess,"Call Failed");
     }   
+    modifier onlyOwner(){
+        require(msg.sender == owner, "Not the owner to withdraw!");
+        _;//add whatever else present in the function
+    }
 }
