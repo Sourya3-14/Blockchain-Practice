@@ -6,19 +6,18 @@ pragma solidity ^0.8.24;
 import {PriceConvertor} from "./PriceConvertor.sol";
 
 contract FundMe{
-using PriceConvertor for uint256;
-
-    uint256 minimumUSD = 5e18;
+    using PriceConvertor for uint256;
+    uint256 public constant MINIMUM_USD = 1e18;
     address[] public funders;
     mapping (address => uint256) public amount;
-    address public owner;
+    address public immutable i_owner;
+
     constructor(){
-        minimumUSD = 1e18;
-        owner = msg.sender;
+        i_owner = msg.sender;
     }
 
     function fund() public payable{
-        require(msg.value.getConversion() >minimumUSD,"No minimum amount sent");
+        require(msg.value.getConversion() >MINIMUM_USD,"No minimum amount sent");
         //msg.value gets passed to as the first argument of getConversion() 
         funders.push(msg.sender);
         amount[msg.sender] += msg.value;
@@ -34,15 +33,15 @@ using PriceConvertor for uint256;
         funders = new address[](0);
 
         //transer 2300 gas gives error
-        payable(msg.sender).transfer(address(this).balance);
+        // payable(msg.sender).transfer(address(this).balance);
         //send 2300 gas returns bool
-        require(payable(msg.sender).send(address(this).balance),"Send Failed");
+        // require(payable(msg.sender).send(address(this).balance),"Send Failed");
         //call
         (bool callSuccess,)=payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess,"Call Failed");
     }   
     modifier onlyOwner(){
-        require(msg.sender == owner, "Not the owner to withdraw!");
+        require(msg.sender == i_owner, "Not the owner to withdraw!");
         _;//add whatever else present in the function
     }
 }
