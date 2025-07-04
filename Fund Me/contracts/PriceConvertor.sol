@@ -12,7 +12,7 @@ library PriceConvertor{
             /*uint256 startedAt*/,
             /*uint256 updatedAt*/,
             /*uint80 answeredInRound*/
-        ) = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306).latestRoundData();
+        ) = AggregatorV3Interface(0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF).latestRoundData();
         // price of ETH in terms of USD
         // 1e18 = 1 Eth = 10^9 gwei = 10^18 wei
         //rturns usd in 8 decimal extra format like 200000000000 means = 2000.00000000
@@ -20,7 +20,7 @@ library PriceConvertor{
         return uint256(answer*1e10);//returns price in wei
     }
     function getVersion() public view returns(uint256){
-        return AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306).version();
+        return AggregatorV3Interface(0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF).version();
     }
 
     function getConversion(uint256 ethAmount) public view returns(uint256){

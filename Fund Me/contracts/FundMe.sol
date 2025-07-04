@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-// import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
-import {PriceConvertor} from "./PriceConvertor.sol";
+// import {PriceConvertor} from "./PriceConvertor.sol";
 
 error notOwner();
 
 contract FundMe{
-    using PriceConvertor for uint256;
+    // using PriceConvertor for uint256;
     uint256 public constant MINIMUM_USD = 1e18;
     address[] public funders;
     mapping (address => uint256) public amount;
@@ -19,8 +19,7 @@ contract FundMe{
     }
 
     function fund() public payable{
-        require(msg.value.getConversion() >MINIMUM_USD,"No minimum amount sent");
-        //msg.value gets passed to as the first argument of getConversion() 
+        require(getConversion(msg.value) >MINIMUM_USD,"No minimum amount sent");
         funders.push(msg.sender);
         amount[msg.sender] += msg.value;
     }
@@ -34,11 +33,7 @@ contract FundMe{
         }
         funders = new address[](0);
 
-        //transer 2300 gas gives error
-        // payable(msg.sender).transfer(address(this).balance);
-        //send 2300 gas returns bool
-        // require(payable(msg.sender).send(address(this).balance),"Send Failed");
-        //call
+       
         (bool callSuccess,)=payable(msg.sender).call{value: address(this).balance}("");
         require(callSuccess,"Call Failed");
     }   
@@ -53,5 +48,26 @@ contract FundMe{
     }
     fallback() external payable { 
         fund();
+    }
+     function getPrice() public view returns (uint256) {
+        // prettier-ignore
+        (
+            /* uint80 roundId */,
+            int256 answer,
+            /*uint256 startedAt*/,
+            /*uint256 updatedAt*/,
+            /*uint80 answeredInRound*/
+        ) = AggregatorV3Interface(0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF).latestRoundData();
+       
+        return uint256(answer*1e10);//returns price in wei
+    }
+    function getVersion() public view returns(uint256){
+        return AggregatorV3Interface(0xfEefF7c3fB57d18C5C6Cdd71e45D2D0b4F9377bF).version();
+    }
+
+    function getConversion(uint256 ethAmount) public view returns(uint256){
+        uint256 ethPrice = getPrice();
+        uint256 ethAmountUSD = ethPrice * ethAmount/1e18;
+        return ethAmountUSD;
     }
 }
