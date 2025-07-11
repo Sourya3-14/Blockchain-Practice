@@ -1,0 +1,9 @@
+await simpleStorage.retrieve()
+await simpleStorage.store(255)
+await simpleStorage.retrieve()
+ const simpleStorage = await SimpleStorageFactory.deploy()
+const SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage")
+ const simpleStorage = await SimpleStorageFactory.
+const SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage")
+que
+const SimpleStorageFactory = await ethers.getContractFactory("SimpleStorage")

@@ -1,0 +1,46 @@
+{
+  "contracts\\SimpleStorage.sol": {
+    "l": { "16": 1, "20": 2, "24": 0, "25": 0 },
+    "path": "E:\\BlockChain_Practice\\HardHat_SimpleStorage\\contracts\\SimpleStorage.sol",
+    "s": { "1": 2, "2": 0 },
+    "b": {},
+    "f": { "1": 1, "2": 2, "3": 0 },
+    "fnMap": {
+      "1": {
+        "name": "store",
+        "line": 15,
+        "loc": {
+          "start": { "line": 15, "column": 2 },
+          "end": { "line": 17, "column": 2 }
+        }
+      },
+      "2": {
+        "name": "retrieve",
+        "line": 19,
+        "loc": {
+          "start": { "line": 19, "column": 2 },
+          "end": { "line": 21, "column": 2 }
+        }
+      },
+      "3": {
+        "name": "addPerson",
+        "line": 23,
+        "loc": {
+          "start": { "line": 23, "column": 2 },
+          "end": { "line": 26, "column": 2 }
+        }
+      }
+    },
+    "statementMap": {
+      "1": {
+        "start": { "line": 20, "column": 4 },
+        "end": { "line": 20, "column": 25 }
+      },
+      "2": {
+        "start": { "line": 24, "column": 4 },
+        "end": { "line": 24, "column": 46 }
+      }
+    },
+    "branchMap": {}
+  }
+}
