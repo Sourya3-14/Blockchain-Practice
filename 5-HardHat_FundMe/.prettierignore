@@ -1,0 +1,12 @@
+node_modules/
+artifacts/
+cache/
+out/
+dist/
+coverage/
+*.abi
+*.bin
+*.lock
+.env
+*.json
+ignition/deployments

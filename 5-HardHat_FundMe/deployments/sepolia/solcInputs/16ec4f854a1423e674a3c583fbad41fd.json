@@ -1,0 +1,54 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorInterface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n// solhint-disable-next-line interface-starts-with-i\ninterface AggregatorInterface {\n  function latestAnswer() external view returns (int256);\n\n  function latestTimestamp() external view returns (uint256);\n\n  function latestRound() external view returns (uint256);\n\n  function getAnswer(uint256 roundId) external view returns (int256);\n\n  function getTimestamp(uint256 roundId) external view returns (uint256);\n\n  event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 updatedAt);\n\n  event NewRound(uint256 indexed roundId, address indexed startedBy, uint256 startedAt);\n}\n"
+    },
+    "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV2V3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport {AggregatorInterface} from \"./AggregatorInterface.sol\";\nimport {AggregatorV3Interface} from \"./AggregatorV3Interface.sol\";\n\n// solhint-disable-next-line interface-starts-with-i\ninterface AggregatorV2V3Interface is AggregatorInterface, AggregatorV3Interface {}\n"
+    },
+    "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n// solhint-disable-next-line interface-starts-with-i\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(\n    uint80 _roundId\n  ) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n\n  function latestRoundData()\n    external\n    view\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n}\n"
+    },
+    "@chainlink/contracts/src/v0.8/shared/mocks/MockV3Aggregator.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport {AggregatorV2V3Interface} from \"../interfaces/AggregatorV2V3Interface.sol\";\n\n/**\n * @title MockV3Aggregator\n * @notice Based on the FluxAggregator contract\n * @notice Use this contract when you need to test\n * other contract's ability to read data from an\n * aggregator contract, but how the aggregator got\n * its answer is unimportant\n */\n// solhint-disable\ncontract MockV3Aggregator is AggregatorV2V3Interface {\n  uint256 public constant override version = 0;\n\n  uint8 public override decimals;\n  int256 public override latestAnswer;\n  uint256 public override latestTimestamp;\n  uint256 public override latestRound;\n\n  mapping(uint256 => int256) public override getAnswer;\n  mapping(uint256 => uint256) public override getTimestamp;\n  mapping(uint256 => uint256) private getStartedAt;\n\n  constructor(uint8 _decimals, int256 _initialAnswer) {\n    decimals = _decimals;\n    updateAnswer(_initialAnswer);\n  }\n\n  function updateAnswer(int256 _answer) public {\n    latestAnswer = _answer;\n    latestTimestamp = block.timestamp;\n    latestRound++;\n    getAnswer[latestRound] = _answer;\n    getTimestamp[latestRound] = block.timestamp;\n    getStartedAt[latestRound] = block.timestamp;\n  }\n\n  function updateRoundData(uint80 _roundId, int256 _answer, uint256 _timestamp, uint256 _startedAt) public {\n    latestRound = _roundId;\n    latestAnswer = _answer;\n    latestTimestamp = _timestamp;\n    getAnswer[latestRound] = _answer;\n    getTimestamp[latestRound] = _timestamp;\n    getStartedAt[latestRound] = _startedAt;\n  }\n\n  function getRoundData(\n    uint80 _roundId\n  )\n    external\n    view\n    override\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)\n  {\n    return (_roundId, getAnswer[_roundId], getStartedAt[_roundId], getTimestamp[_roundId], _roundId);\n  }\n\n  function latestRoundData()\n    external\n    view\n    override\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)\n  {\n    return (\n      uint80(latestRound),\n      getAnswer[latestRound],\n      getStartedAt[latestRound],\n      getTimestamp[latestRound],\n      uint80(latestRound)\n    );\n  }\n\n  function description() external pure override returns (string memory) {\n    return \"v0.8/tests/MockV3Aggregator.sol\";\n  }\n}\n"
+    },
+    "contracts/FundMe.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\nimport \"@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol\";\n\nimport {PriceConvertor} from \"./PriceConvertor.sol\";\n\nerror FundMe__notOwner();\n\n//NatSpec\n/**\n * @title a contract for crowd funding\n * @author Sourya Adhikary\n * @notice this contract is to demo a sample funding contract\n * @dev this implements price feeds as our library\n */\ncontract FundMe {\n    //Type declarations\n    using PriceConvertor for uint256;\n    //State variables\n    uint256 public constant MINIMUM_USD = 1e18;\n    address[] private s_funders;\n    mapping(address => uint256) private s_amount;\n    address private immutable i_owner;\n\n    AggregatorV3Interface private s_priceFeed;\n\n    //Modifiers\n    modifier onlyOwner() {\n        // require(msg.sender == i_owner, \"Not the owner to withdraw!\");\n        if (msg.sender != i_owner) revert FundMe__notOwner(); //this is more gas efficient as the compiler knows we are checking against this variable no need for any string variables.\n        _; //add whatever else present in the function\n    }\n\n    //Functions\n    //constructor\n    //recieve function\n    //fallback function\n    //external function\n    //public function\n    //internal function\n    //private function\n    //view function\n    //pure function\n    constructor(address priceFeedAddress) {\n        i_owner = msg.sender;\n        s_priceFeed = AggregatorV3Interface(priceFeedAddress);\n    }\n\n    receive() external payable {\n        fund();\n    }\n\n    fallback() external payable {\n        fund();\n    }\n\n    /**\n     * @notice this function funds the contract\n     * @dev this implements price feeds as our library\n     */\n    function fund() public payable {\n        require(\n            msg.value.getConversion(s_priceFeed) >= MINIMUM_USD,\n            \"No minimum amount sent\"\n        );\n        //msg.value gets passed to as the first argument of getConversion()\n        s_funders.push(msg.sender);\n        s_amount[msg.sender] += msg.value;\n    }\n\n    function withdraw() public onlyOwner {\n        //for loop\n        //[1,2,3,4]\n        for (uint256 i = 0; i < s_funders.length; i++) {\n            address funder = s_funders[i];\n            s_amount[funder] = 0;\n        }\n        s_funders = new address[](0);\n\n        //transer 2300 gas gives error\n        // payable(msg.sender).transfer(address(this).balance);\n        //send 2300 gas returns bool\n        // require(payable(msg.sender).send(address(this).balance),\"Send Failed\");\n        //call\n        (bool callSuccess, ) = payable(msg.sender).call{\n            value: address(this).balance\n        }(\"\");\n        require(callSuccess, \"Call Failed\");\n    }\n    function cheaperWithdraw() public onlyOwner {\n        address[] memory fundersCopy = s_funders; //copy the array to save gas\n        //mapping can't be reset so we need to loop through the fundersCopy array\n        for (uint256 i = 0; i < fundersCopy.length; i++) {\n            address funder = fundersCopy[i];\n            s_amount[funder] = 0;\n        }\n        s_funders = new address[](0);\n\n        (bool callSuccess, ) = payable(msg.sender).call{\n            value: address(this).balance\n        }(\"\");\n        require(callSuccess, \"Call Failed\");\n    }\n\n    function getOwner() public view returns (address) {\n        return i_owner;\n    }\n    function getFunder(uint256 index) public view returns (address) {\n        return s_funders[index];\n    }\n    function getFunderAmount(address funder) public view returns (uint256) {\n        return s_amount[funder];\n    }\n    function getPriceFeed() public view returns (AggregatorV3Interface) {\n        return s_priceFeed;\n    }\n}\n"
+    },
+    "contracts/mocks/MockV3Aggregator.sol": {
+      "content": "//SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.0;\r\n\r\nimport \"@chainlink/contracts/src/v0.8/shared/mocks/MockV3Aggregator.sol\";"
+    },
+    "contracts/PriceConvertor.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.24;\r\n\r\nimport \"@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol\";\r\n\r\nlibrary PriceConvertor{\r\n    function getPrice(AggregatorV3Interface priceFeed) public view returns (uint256) {\r\n        // prettier-ignore\r\n        (\r\n            /* uint80 roundId */,\r\n            int256 answer,\r\n            /*uint256 startedAt*/,\r\n            /*uint256 updatedAt*/,\r\n            /*uint80 answeredInRound*/\r\n        ) = priceFeed.latestRoundData();\r\n        // price of ETH in terms of USD\r\n        // 1e18 = 1 Eth = 10^9 gwei = 10^18 wei\r\n        //rturns usd in 8 decimal extra format like 200000000000 means = 2000.00000000\r\n        //working with 18 decimal places is preferred so multiply with 10^10\r\n        return uint256(answer*1e10);//returns price in wei\r\n    }\r\n    function getVersion(AggregatorV3Interface priceFeed) public view returns(uint256){\r\n        return priceFeed.version();\r\n    }\r\n\r\n    function getConversion(uint256 ethAmount,AggregatorV3Interface priceFeed) public view returns (uint256){\r\n        //1 eth = 2000 usd\r\n        //1 gwei = 2 usd\r\n        //1 wei = 0.000000000002 usd\r\n        //1 eth = 2000 * 10^18 wei\r\n        //1 wei = 2000 * 10^18 / 10^18 = 2000 usd\r\n        uint256 ethPrice = getPrice(priceFeed);\r\n        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18; //convert to USD\r\n        return ethAmountInUsd;\r\n    }\r\n}"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
